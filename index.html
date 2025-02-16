@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDG 출퇴근</title>
+  <link rel="stylesheet" href="./bootstrap.min.css">
+  <link rel="stylesheet" href="./SUITE-Variable.css">
+  <link rel="stylesheet" href="./node_modules/lineicons/web-font/lineicons.css" />
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div div class="wrap">
+    <div class="contents-wrap">
+      <div class="main-left">
+        <h2 id="greetingMsg">
+          <strong id="usernamePart"></strong><span id="suffixPart"></span><br><span id="greetingPart"></span>
+        </h2>
+        <p id="clockDisplay" class="clock"></p>
+      </div>
+
+      <section>
+        <h3>출퇴근 보고 자동 완성</h3>
+        <form id="reportForm">
+          <div class="input-group">
+            <label for="name"><i class="la la-user-circle"></i> 이름:</label>
+            <input type="text" id="name" name="userName">
+          </div>
+
+          <div class="input-group">
+            <label for="startTime"><i class="las la-hiking"></i> 출근 시간:</label>
+            <div class="input-btn-wrap">
+              <input type="time" id="startTime" name="startTime">
+              <button type="button" id="fillStartTime"><i class="las la-business-time"></i> 현재</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div>
+              <label for="endTime"><i class="las la-running"></i> 퇴근 시간:</label>
+              <div id="weekendCheck" class="weekend-check">
+                <span>마지막 출근 :</span>
+                <label><input type="radio" id="chk_saturday" name="weekend"> 토</label>
+                <label><input type="radio" id="chk_sunday" name="weekend"> 일</label>
+                <a class="commute-tooltip"><i class="las la-info-circle"></i>
+                  <p>일~화요일에 활성화 됩니다.</p>
+                </a>
+              </div>
+            </div>
+            <div class="input-btn-wrap">
+              <input type="time" id="endTime" name="endTime">
+              <button type="button" id="fillEndTime"><i class="las la-business-time"></i> 현재</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="button-wrap">
+          <button id="arrivalBtn" class="arrival-btn"><i class="las la-hiking"></i> 출근보고</button>
+          <button id="departureBtn" class="depature-btn"><i class="las la-running"></i> 퇴근보고</button>
+        </div>
+
+        <div id="report" class="report-box"></div>
+      </section>
+    </div>
+
+    <a class="setting-btn" href="javascript:;" data-bs-toggle="modal" data-bs-target="#settingModal">
+      <i class="las la-cog"></i>
+    </a>
+  </div>
+
+  <!-- 토스트: 복사 완료 -->
+  <div id="globalToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex justify-content-between">
+      <div class="toast-body" id="globalToastMessage">메시지 영역</div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+
+  <!-- 배경 설정 모달 -->
+  <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="settingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingModalLabel">배경 이미지 설정</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+        <div class="modal-body">
+          <div id="dropZone" class="rounded">
+            <p class="mb-2"><i class="las la-file-image"></i><br>이미지를 선택하거나 이곳에 끌어다 놓으세요</p>
+            <input type="file" id="bgFileInput" accept="image/*" class="form-control" />
+            <div id="bgFileError" class="invalid-feedback d-none mt-2"></div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button class="btn btn-danger" id="resetBackground"><i class="las la-chess-board"></i> 배경 초기화</button>
+          <div>
+            <button type="button" class="btn btn-primary" id="confirmBackgroundBtn"><i class="las la-check"></i> 확인</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="las la-times"></i> 닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./bootstrap.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
