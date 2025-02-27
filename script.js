@@ -339,3 +339,22 @@ async function copyToClipboard() {
 }
 
 document.addEventListener("DOMContentLoaded", initApp);
+
+
+function sendTelegramMessage(message) {
+  fetch('/.netlify/functions/sendTelegram', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+}
+
+document.getElementById('arrivalBtn').addEventListener('click', () => {
+  const now = new Date().toLocaleString();
+  sendTelegramMessage(`✅ 출근 보고 - ${now}`);
+});
+
+document.getElementById('departureBtn').addEventListener('click', () => {
+  const now = new Date().toLocaleString();
+  sendTelegramMessage(`🏁 퇴근 보고 - ${now}`);
+});
