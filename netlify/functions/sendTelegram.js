@@ -2,8 +2,8 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 exports.handler = async function(event, context) {
-  const BOT_TOKEN = '여기에_봇_토큰';
-  const CHAT_ID = '여기에_chat_id';
+  const BOT_TOKEN = '8011930241:AAE7P8NlflY20-amZRVMptBTYvpzBXic9zQ';
+  const CHAT_ID = '-4808065139';
 
   if (event.httpMethod !== 'POST') {
     return {
