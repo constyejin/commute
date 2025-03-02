@@ -1,9 +1,10 @@
-// netlify/functions/sendTelegram.js
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+// sendTelegram.js
 
-exports.handler = async function(event, context) {
-  const BOT_TOKEN = '8011930241:AAE7P8NlflY20-amZRVMptBTYvpzBXic9zQ';
-  const CHAT_ID = '-4808065139';
+import fetch from 'node-fetch';
+
+export async function handler(event, context) {
+  const BOT_TOKEN = 'your_token';
+  const CHAT_ID = 'your_chat_id';
 
   if (event.httpMethod !== 'POST') {
     return {
@@ -12,21 +13,25 @@ exports.handler = async function(event, context) {
     };
   }
 
-  const { message } = JSON.parse(event.body);
+  try {
+    const { message } = JSON.parse(event.body);
 
-  const telegramRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: message,
-    }),
-  });
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CHAT_ID, text: message }),
+    });
 
-  const resData = await telegramRes.json();
+    const data = await res.json();
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(resData),
-  };
-};
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: `Function error: ${error.message}`,
+    };
+  }
+}
