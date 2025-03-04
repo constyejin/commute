@@ -2,7 +2,7 @@
 function initApp() {
   initFormData();
   initWeekendCheckboxes();
-  initGreetingTyping();
+  // initGreetingTyping();
   initClock();
   initBackgroundFromStorage();
   initDragAndDrop();
@@ -137,84 +137,84 @@ function observeDateChange() {
 }
 
 // ===== 인사 메시지 및 시계 =====
-function initGreetingTyping() {
-  const name = document.getElementById("name")?.value.trim();
-  const hasName = !!name;
-  const greeting = getGreetingByTime();
+// function initGreetingTyping() {
+//   const name = document.getElementById("name")?.value.trim();
+//   const hasName = !!name;
+//   const greeting = getGreetingByTime();
 
-  const u = document.getElementById("usernamePart");
-  const s = document.getElementById("suffixPart");
-  const g = document.getElementById("greetingPart");
+//   const u = document.getElementById("usernamePart");
+//   const s = document.getElementById("suffixPart");
+//   const g = document.getElementById("greetingPart");
 
-  u.textContent = "";
-  s.textContent = "";
-  g.textContent = "";
+//   u.textContent = "";
+//   s.textContent = "";
+//   g.textContent = "";
 
-  const suffix = "님,";
+//   const suffix = "님,";
 
-  let i = 0, j = 0, k = 0;
+//   let i = 0, j = 0, k = 0;
 
-  if (!hasName) { typeGreeting(); } else { typeUsername(); }
+//   if (!hasName) { typeGreeting(); } else { typeUsername(); }
 
-  function typeUsername() {
-    if (i < name.length) {
-      u.textContent += name[i++];
-      setTimeout(typeUsername, 150);
-    } else {
-      setTimeout(typeSuffix, 150);
-    }
-  }
+//   function typeUsername() {
+//     if (i < name.length) {
+//       u.textContent += name[i++];
+//       setTimeout(typeUsername, 150);
+//     } else {
+//       setTimeout(typeSuffix, 150);
+//     }
+//   }
 
-  function typeSuffix() {
-    if (j < suffix.length) {
-      s.textContent += suffix[j++];
-      setTimeout(typeSuffix, 150);
-    } else {
-      setTimeout(typeGreeting, 250);
-    }
-  }
+//   function typeSuffix() {
+//     if (j < suffix.length) {
+//       s.textContent += suffix[j++];
+//       setTimeout(typeSuffix, 150);
+//     } else {
+//       setTimeout(typeGreeting, 250);
+//     }
+//   }
 
-  function typeGreeting() {
-    if (k < greeting.length) {
-      g.textContent += greeting[k++];
-      setTimeout(typeGreeting, 150);
-    } else {
-      document.getElementById("clockDisplay").style.opacity = 1;
-    }
-  }
-}
+//   function typeGreeting() {
+//     if (k < greeting.length) {
+//       g.textContent += greeting[k++];
+//       setTimeout(typeGreeting, 150);
+//     } else {
+//       document.getElementById("clockDisplay").style.opacity = 1;
+//     }
+//   }
+// }
 
-function getGreetingByTime() {
-  const h = new Date().getHours();
-  return h < 5 ? "오늘 하루도 고생 하셨어요." : h < 12 ? "좋은 아침이에요." : h < 19 ? "오후도 활기차게 파이팅!" : "오늘 하루도 고생 하셨어요.";
-}
+// function getGreetingByTime() {
+//   const h = new Date().getHours();
+//   return h < 5 ? "오늘 하루도 고생 하셨어요." : h < 12 ? "좋은 아침이에요." : h < 19 ? "오후도 활기차게 파이팅!" : "오늘 하루도 고생 하셨어요.";
+// }
 
-function startGreetingUpdater() {
-  setInterval(() => {
-    const name = document.getElementById("name")?.value.trim();
-    const hasName = !!name;
-    const u = document.getElementById("usernamePart");
-    const s = document.getElementById("suffixPart");
-    const g = document.getElementById("greetingPart");
-    const suffix = "님,";
-    const greeting = getGreetingByTime();
+// function startGreetingUpdater() {
+//   setInterval(() => {
+//     const name = document.getElementById("name")?.value.trim();
+//     const hasName = !!name;
+//     const u = document.getElementById("usernamePart");
+//     const s = document.getElementById("suffixPart");
+//     const g = document.getElementById("greetingPart");
+//     const suffix = "님,";
+//     const greeting = getGreetingByTime();
 
-    u.textContent = hasName ? name : "";
-    s.textContent = hasName ? suffix : "";
-    g.textContent = greeting;
-  }, 60000);
-}
+//     u.textContent = hasName ? name : "";
+//     s.textContent = hasName ? suffix : "";
+//     g.textContent = greeting;
+//   }, 60000);
+// }
 
-function initClock() {
-  const clock = document.getElementById("clockDisplay");
-  function updateClock() {
-    const now = new Date();
-    clock.textContent = `${now.getFullYear()}-${padZero(now.getMonth()+1)}-${padZero(now.getDate())} ${padZero(now.getHours())}:${padZero(now.getMinutes())}:${padZero(now.getSeconds())}`;
-  }
-  clock.style.opacity = 0;
-  updateClock();
-  setInterval(updateClock, 1000);
-}
+// function initClock() {
+//   const clock = document.getElementById("clockDisplay");
+//   function updateClock() {
+//     const now = new Date();
+//     clock.textContent = `${now.getFullYear()}-${padZero(now.getMonth()+1)}-${padZero(now.getDate())} ${padZero(now.getHours())}:${padZero(now.getMinutes())}:${padZero(now.getSeconds())}`;
+//   }
+//   clock.style.opacity = 0;
+//   updateClock();
+//   setInterval(updateClock, 1000);
+// }
 
 // ===== 배경 이미지 및 밝기 분석 =====
 function initBackgroundFromStorage() {
