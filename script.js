@@ -3,7 +3,7 @@ function initApp() {
   initFormData();
   initWeekendCheckboxes();
   // initGreetingTyping();
-  initClock();
+  // initClock();
   initBackgroundFromStorage();
   initDragAndDrop();
   initBackgroundButtons();
