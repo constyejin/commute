@@ -8,7 +8,7 @@ function initApp() {
   initDragAndDrop();
   initBackgroundButtons();
   observeDateChange();
-  startGreetingUpdater();
+  // startGreetingUpdater();
 }
 
 // ===== 폼 및 출퇴근 관련 =====
