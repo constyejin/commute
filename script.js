@@ -342,12 +342,14 @@ document.addEventListener("DOMContentLoaded", initApp);
 
 
 function sendTelegramMessage(message) {
-  fetch('/.netlify/functions/sendTelegram', {
+  fetch('http://localhost:8888/.netlify/functions/sendTelegram', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
   });
 }
+
+
 
 document.getElementById('arrivalBtn').addEventListener('click', () => {
   const now = new Date().toLocaleString();
