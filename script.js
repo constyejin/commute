@@ -340,15 +340,16 @@ async function copyToClipboard() {
 
 document.addEventListener("DOMContentLoaded", initApp);
 
-
 function sendTelegramMessage(message) {
-  fetch('http://localhost:8888/.netlify/functions/sendTelegram', {
+  fetch('/.netlify/functions/sendTelegram', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
-  });
+  })
+  .then(res => res.json())
+  .then(data => console.log('✅ Telegram sent:', data))
+  .catch(error => console.error('❌ Error:', error));
 }
-
 
 
 document.getElementById('arrivalBtn').addEventListener('click', () => {
