@@ -31,8 +31,8 @@ function getTimeFromInput(inputId) {
 
 document.getElementById('arrivalBtn').addEventListener('click', () => {
   const name = document.getElementById('name').value || '이름없음';
-  const arrivalTime = getTimeFromInput('arrivalTime') || new Date();
-  const departureTime = getTimeFromInput('departureTime') || new Date();
+  const arrivalTime = getTimeFromInput('arrivalBtn') || new Date();
+  const departureTime = getTimeFromInput('departureBtn') || new Date();
 
   const message = `${name} 출근 보고드립니다.\n-퇴근 ${formatDateTime(departureTime)}\n-출근 ${formatDateTime(arrivalTime)}`;
   sendTelegramMessage(message);
@@ -40,8 +40,8 @@ document.getElementById('arrivalBtn').addEventListener('click', () => {
 
 document.getElementById('departureBtn').addEventListener('click', () => {
   const name = document.getElementById('name').value || '이름없음';
-  const arrivalTime = getTimeFromInput('arrivalTime') || new Date();
-  const departureTime = getTimeFromInput('departureTime') || new Date();
+  const arrivalTime = getTimeFromInput('arrivalBtn') || new Date();
+  const departureTime = getTimeFromInput('departureBtn') || new Date();
 
   const message = `${name} 퇴근 보고드립니다.\n-출근 ${formatDateTime(arrivalTime)}\n-퇴근 ${formatDateTime(departureTime)}`;
   sendTelegramMessage(message);
