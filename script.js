@@ -10,7 +10,7 @@ const departureReportBtn = document.getElementById('departureBtn');
 
 const STORAGE_KEY = 'commuteData';
 
-// ✅ 현재 말레이시아 시간 문자열 (HH:MM)
+// ✅ 말레이시아 현재 시간 HH:MM
 function getMYTimeString() {
   const now = new Date();
   const myTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
@@ -19,7 +19,7 @@ function getMYTimeString() {
   return `${hour}:${min}`;
 }
 
-// ✅ 말레이시아 시간 기준으로 날짜+시간 포맷
+// ✅ 말레이시아 날짜 및 시간 포맷
 function formatMYDateTime(timeStr) {
   const baseTime = timeStr ? new Date(`1970-01-01T${timeStr}`) : new Date();
   const now = new Date();
@@ -49,8 +49,8 @@ function loadFromLocalStorage() {
   const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
   if (data) {
     nameInput.value = data.name || '';
-    arrivalInput.value = data.arrival || '';
-    departureInput.value = data.departure || '';
+    if (data.arrival) arrivalInput.value = data.arrival;
+    if (data.departure) departureInput.value = data.departure;
   }
 }
 
@@ -63,14 +63,14 @@ function sendTelegramMessage(message) {
   });
 }
 
-// ✅ 출근 현재 시간 입력
+// ✅ 출근 현재시간 버튼 클릭 → 값 반영 및 저장
 arrivalTimeBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
   saveToLocalStorage();
 });
 
-// ✅ 퇴근 현재 시간 입력 + 텔레그램 자동 전송
+// ✅ 퇴근 현재시간 버튼 클릭 → 값 반영, 저장, 텔레그램 전송
 departureTimeBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   departureInput.value = now;
@@ -84,12 +84,12 @@ departureTimeBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
-// ✅ input 수동 변경 시 저장
+// ✅ input 수동 변경 시 로컬스토리지 자동 저장
 [nameInput, arrivalInput, departureInput].forEach((input) => {
   input.addEventListener('input', saveToLocalStorage);
 });
 
-// ✅ 출근 보고
+// ✅ 출근 보고 버튼
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value || getMYTimeString();
@@ -101,7 +101,7 @@ arrivalReportBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
-// ✅ 퇴근 보고
+// ✅ 퇴근 보고 버튼
 departureReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value || '';
@@ -113,5 +113,5 @@ departureReportBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
-// ✅ 시작 시 로컬스토리지 불러오기
+// ✅ 페이지 로드 시 로컬스토리지 불러오기
 loadFromLocalStorage();
