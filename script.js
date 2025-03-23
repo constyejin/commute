@@ -54,7 +54,7 @@ function loadFromLocalStorage() {
   }
 }
 
-// ✅ 텔레그램 전송
+// ✅ 텔레그램 메시지 전송
 function sendTelegramMessage(message) {
   fetch('/.netlify/functions/sendTelegram', {
     method: 'POST',
@@ -63,7 +63,7 @@ function sendTelegramMessage(message) {
   });
 }
 
-// ✅ 출근 시간 현재 버튼 클릭 → 출근은 현재, 퇴근은 저장된 값으로 메시지
+// ✅ 출근 현재시간 버튼 클릭 → 저장 및 메시지 전송
 arrivalTimeBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -71,16 +71,23 @@ arrivalTimeBtn.addEventListener('click', () => {
 
   arrivalInput.value = now;
 
+  const updatedData = {
+    ...data,
+    name: nameInput.value,
+    arrival: now,
+    departure: departure,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+
   const name = nameInput.value || '이름 없음';
   const msg = `${name} 출근 보고드립니다.\n` +
               `-퇴근 ${formatMYDateTime(departure)}\n` +
               `-출근 ${formatMYDateTime(now)}`;
 
-  saveToLocalStorage();
   sendTelegramMessage(msg);
 });
 
-// ✅ 퇴근 시간 현재 버튼 클릭 → 퇴근은 현재, 출근은 저장된 값으로 메시지
+// ✅ 퇴근 현재시간 버튼 클릭 → 저장 및 메시지 전송
 departureTimeBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -88,21 +95,28 @@ departureTimeBtn.addEventListener('click', () => {
 
   departureInput.value = now;
 
+  const updatedData = {
+    ...data,
+    name: nameInput.value,
+    arrival: arrival,
+    departure: now,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+
   const name = nameInput.value || '이름 없음';
   const msg = `${name} 퇴근 보고드립니다.\n` +
               `-출근 ${formatMYDateTime(arrival)}\n` +
               `-퇴근 ${formatMYDateTime(now)}`;
 
-  saveToLocalStorage();
   sendTelegramMessage(msg);
 });
 
-// ✅ input 수동 변경 시에도 저장
+// ✅ input 수동 변경 시 저장
 [nameInput, arrivalInput, departureInput].forEach((input) => {
   input.addEventListener('input', saveToLocalStorage);
 });
 
-// ✅ 출근 보고 버튼
+// ✅ 출근 보고 버튼 클릭
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value || getMYTimeString();
@@ -114,7 +128,7 @@ arrivalReportBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
-// ✅ 퇴근 보고 버튼
+// ✅ 퇴근 보고 버튼 클릭
 departureReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value || '';
@@ -126,5 +140,5 @@ departureReportBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
-// ✅ 시작 시 데이터 불러오기
+// ✅ 시작 시 저장된 값 반영
 loadFromLocalStorage();
