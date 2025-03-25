@@ -63,14 +63,14 @@ function sendTelegramMessage(message) {
   });
 }
 
-// ✅ 출근 시간 버튼 (입력만, 전송 없음)
+// ✅ 출근 시간 버튼 (입력만, 전송 X)
 arrivalTimeBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
   saveToLocalStorage();
 });
 
-// ✅ 퇴근 시간 버튼 (입력만, 전송 없음)
+// ✅ 퇴근 시간 버튼 (입력만, 전송 X)
 departureTimeBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   departureInput.value = now;
@@ -82,10 +82,11 @@ departureTimeBtn.addEventListener('click', () => {
   input.addEventListener('input', saveToLocalStorage);
 });
 
-// ✅ 출근 보고 버튼 → 현재시간으로 업데이트 후 전송
+// ✅ 출근 보고 버튼 → 현재시간 반영 + 저장 + 전송
 arrivalReportBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
+  saveToLocalStorage();
 
   const name = nameInput.value || '이름 없음';
   const departure = departureInput.value || '';
@@ -94,14 +95,14 @@ arrivalReportBtn.addEventListener('click', () => {
               `-퇴근 ${formatMYDateTime(departure)}\n` +
               `-출근 ${formatMYDateTime(now)}`;
 
-  saveToLocalStorage();
   sendTelegramMessage(msg);
 });
 
-// ✅ 퇴근 보고 버튼 → 현재시간으로 업데이트 후 전송
+// ✅ 퇴근 보고 버튼 → 현재시간 반영 + 저장 + 전송
 departureReportBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   departureInput.value = now;
+  saveToLocalStorage();
 
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value || '';
@@ -110,9 +111,8 @@ departureReportBtn.addEventListener('click', () => {
               `-출근 ${formatMYDateTime(arrival)}\n` +
               `-퇴근 ${formatMYDateTime(now)}`;
 
-  saveToLocalStorage();
   sendTelegramMessage(msg);
 });
 
-// ✅ 초기 로컬스토리지 값 불러오기
+// ✅ 시작 시 저장된 값 불러오기
 loadFromLocalStorage();
