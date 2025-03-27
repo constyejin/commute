@@ -1,6 +1,6 @@
 exports.handler = async function(event, context) {
   const BOT_TOKEN = '8011930241:AAE7P8NlflY20-amZRVMptBTYvpzBXic9zQ';
-  const CHAT_ID = '-4808065139';
+  const CHAT_ID = '-4920503377';
 
   if (event.httpMethod !== 'POST') {
     return {
