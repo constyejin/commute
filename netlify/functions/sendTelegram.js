@@ -1,4 +1,4 @@
-exports.handler = async function(event, context) {
+exports.handler = async function(event) {
   const BOT_TOKEN = '8011930241:AAE7P8NlflY20-amZRVMptBTYvpzBXic9zQ';
   const CHAT_ID = '-1002265678123';
 
@@ -6,7 +6,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 405,
       headers: {
-        'Access-Control-Allow-Origin': '*', // ← CORS 허용
+        'Access-Control-Allow-Origin': '*', 
       },
       body: 'Method Not Allowed',
     };
@@ -28,7 +28,7 @@ exports.handler = async function(event, context) {
   return {
     statusCode: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*', // ← CORS 허용
+      'Access-Control-Allow-Origin': '*', 
     },
     body: JSON.stringify(resData),
   };
