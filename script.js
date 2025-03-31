@@ -1,4 +1,4 @@
-const nameInput = document.getElementById('nameInput');
+const nameInput = document.getElementById('name');
 const arrivalInput = document.getElementById('arrivalTime');
 const departureInput = document.getElementById('departureTime');
 const arrivalReportBtn = document.getElementById('arrivalBtn');
