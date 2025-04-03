@@ -434,8 +434,19 @@ section button {
 }
 
 
-@media (max-width: 400px) {
+@media (max-width: 580px) {
+  .contents-wrap {
+    width: calc(100% - 60px);
+  }
+
   section {
     width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .contents-wrap {
+    width: calc(100% - 20px);
   }
 }
