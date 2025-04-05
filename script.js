@@ -1,13 +1,13 @@
 const nameInput = document.getElementById('name');
+
 const arrivalInput = document.getElementById('arrivalTime');
 const departureInput = document.getElementById('departureTime');
-const arrivalReportBtn = document.getElementById('arrivalBtn');
-const departureReportBtn = document.getElementById('departureBtn');
+
 const fillArrivalBtn = document.getElementById('fillArrivalTime');
 const fillDepartureBtn = document.getElementById('fillDepartureTime');
 
-const BOT_TOKEN = 'YOUR_BOT_TOKEN';
-const CHAT_ID = '-1002265678123'; 
+const arrivalReportBtn = document.getElementById('arrivalBtn');
+const departureReportBtn = document.getElementById('departureBtn');
 
 function getMYTimeString() {
   const now = new Date();
@@ -52,6 +52,7 @@ function loadFromLocalStorage() {
   if (data.departure) departureInput.value = data.departure;
 }
 
+// 시간 채우기 버튼 (저장만, 전송 없음)
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
@@ -64,15 +65,21 @@ fillDepartureBtn.addEventListener('click', () => {
   saveToLocalStorage();
 });
 
-arrivalInput.addEventListener('input', saveToLocalStorage);
-departureInput.addEventListener('input', saveToLocalStorage);
-nameInput.addEventListener('input', saveToLocalStorage);
+// input 값 변경시 로컬 저장
+[nameInput, arrivalInput, departureInput].forEach(input => {
+  input.addEventListener('input', saveToLocalStorage);
+});
 
+// 출근 보고
 arrivalReportBtn.addEventListener('click', () => {
   const current = getMYTimeString();
-  const arrival = arrivalInput.value.trim() || current;
+  let arrival = arrivalInput.value.trim();
+  if (!arrival) {
+    arrival = current;
+    arrivalInput.value = arrival;
+  }
+
   const departure = departureInput.value.trim();
-  arrivalInput.value = arrival;
   saveToLocalStorage();
 
   const name = nameInput.value || '이름 없음';
@@ -82,11 +89,16 @@ arrivalReportBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
+// 퇴근 보고
 departureReportBtn.addEventListener('click', () => {
   const current = getMYTimeString();
-  const departure = departureInput.value.trim() || current;
+  let departure = departureInput.value.trim();
+  if (!departure) {
+    departure = current;
+    departureInput.value = departure;
+  }
+
   const arrival = arrivalInput.value.trim();
-  departureInput.value = departure;
   saveToLocalStorage();
 
   const name = nameInput.value || '이름 없음';
@@ -95,5 +107,6 @@ departureReportBtn.addEventListener('click', () => {
               `-퇴근 ${formatMYDateTime(departure)}`;
   sendTelegramMessage(msg);
 });
+
 
 loadFromLocalStorage();
