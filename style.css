@@ -130,6 +130,16 @@ h2 {
   line-height: 1.5em;
 }
 
+.logo {
+  display: flex;
+  justify-content: center;
+  
+  img {
+    width: 180px;
+  }
+  /* border: 2px solid red; */
+}
+
 
 #usernamePart{
   font-weight: 900;
@@ -164,11 +174,10 @@ h3 {
   font-size: 24px;
   font-weight: 500;
   color: #333;
-  margin-top: 15px;
 }
 
 form {
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .input-group {
