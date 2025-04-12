@@ -11,7 +11,7 @@ const departureReportBtn = document.getElementById('departureBtn');
 
 function getTodayKey() {
   const now = new Date();
-  return now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Kuala_Lumpur' }); 
+  return now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Kuala_Lumpur' });
 }
 
 function getYesterdayKey() {
@@ -51,7 +51,7 @@ function saveToLocalStorage(dateKey, type, time) {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   if (!data[dateKey]) data[dateKey] = {};
   data[dateKey][type] = time;
-  data[dateKey]['name'] = nameInput.value.trim();
+  data[dateKey]['name'] = nameInput.value;
   localStorage.setItem('commuteData', JSON.stringify(data));
 }
 
@@ -63,6 +63,22 @@ function loadFromLocalStorage() {
   if (data[today]?.name) nameInput.value = data[today].name;
 }
 
+// ✅ 변경된 input 이벤트 → change 이벤트 (안정성 ↑)
+arrivalInput.addEventListener('change', () => {
+  saveToLocalStorage(getTodayKey(), 'arrival', arrivalInput.value);
+});
+departureInput.addEventListener('change', () => {
+  saveToLocalStorage(getTodayKey(), 'departure', departureInput.value);
+});
+nameInput.addEventListener('change', () => {
+  const today = getTodayKey();
+  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  if (!data[today]) data[today] = {};
+  data[today].name = nameInput.value;
+  localStorage.setItem('commuteData', JSON.stringify(data));
+});
+
+// 시간 자동 입력 버튼
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
@@ -75,31 +91,18 @@ fillDepartureBtn.addEventListener('click', () => {
   saveToLocalStorage(getTodayKey(), 'departure', now);
 });
 
-arrivalInput.addEventListener('input', () => {
-  saveToLocalStorage(getTodayKey(), 'arrival', arrivalInput.value.trim());
-});
-departureInput.addEventListener('input', () => {
-  saveToLocalStorage(getTodayKey(), 'departure', departureInput.value.trim());
-});
-nameInput.addEventListener('input', () => {
-  const today = getTodayKey();
-  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  if (!data[today]) data[today] = {};
-  data[today].name = nameInput.value.trim();
-  localStorage.setItem('commuteData', JSON.stringify(data));
-});
-
 // 출근 보고
 arrivalReportBtn.addEventListener('click', () => {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const today = getTodayKey();
   const yesterday = getYesterdayKey();
-  const name = nameInput.value.trim() || '이름 없음';
+  const name = nameInput.value || '이름 없음';
 
-  const arrival = arrivalInput.value.trim() || getMYTimeString();
+  const arrival = arrivalInput.value || getMYTimeString();
   arrivalInput.value = arrival;
 
-  const lastDeparture = data[yesterday]?.departure || '미입력';
+  const lastDeparture =
+    data[yesterday]?.departure || data[today]?.departure || '미입력';
 
   saveToLocalStorage(today, 'arrival', arrival);
 
@@ -113,12 +116,12 @@ arrivalReportBtn.addEventListener('click', () => {
 departureReportBtn.addEventListener('click', () => {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const today = getTodayKey();
-  const name = nameInput.value.trim() || '이름 없음';
+  const name = nameInput.value || '이름 없음';
 
-  const departure = departureInput.value.trim() || getMYTimeString();
+  const departure = departureInput.value || getMYTimeString();
   departureInput.value = departure;
 
-  const todayArrival = arrivalInput.value.trim() || '미입력';
+  const todayArrival = arrivalInput.value || data[today]?.arrival || '미입력';
 
   saveToLocalStorage(today, 'departure', departure);
 
