@@ -133,6 +133,7 @@ h2 {
 .logo {
   display: flex;
   justify-content: center;
+  margin-top: 10px;
   
   img {
     width: 180px;
@@ -311,6 +312,7 @@ input[type="time"] {
 
 .button-wrap {
   display: flex;
+  margin: 20px 0;
   gap: 10px;
 }
 
