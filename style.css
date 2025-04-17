@@ -89,10 +89,6 @@ body,
   flex-grow:1;
 }
 
-/*section{max-width:500px;width:calc(100% - 30px);background-color:#eee;border-radius:15px;padding:15px 20px}
-h1{font-size:24px;font-weight:600;text-align:center;}
-form{width:100%;margin-top:25px}*/
-
 /* style.css */
 body {
   margin: 0;
@@ -133,7 +129,7 @@ h2 {
 .logo {
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 10px; 
   
   img {
     width: 180px;
