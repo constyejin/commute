@@ -63,7 +63,6 @@ function loadFromLocalStorage() {
   if (data[today]?.name) nameInput.value = data[today].name;
 }
 
-// ✅ 변경된 input 이벤트 → change 이벤트 (안정성 ↑)
 arrivalInput.addEventListener('change', () => {
   saveToLocalStorage(getTodayKey(), 'arrival', arrivalInput.value);
 });
@@ -78,7 +77,7 @@ nameInput.addEventListener('change', () => {
   localStorage.setItem('commuteData', JSON.stringify(data));
 });
 
-// 시간 자동 입력 버튼
+// 현재 시간 입력 버튼
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
