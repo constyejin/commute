@@ -1,28 +1,17 @@
-const dropZone = document.getElementById('dropZone');
-const bgFileInput = document.getElementById('bgFileInput');
-const confirmBtn = document.getElementById('confirmBackgroundBtn');
-const resetBtn = document.getElementById('resetBackground');
-const targetElement = document.body; // ← 적용할 엘리먼트 변경 가능 (예: document.querySelector('.bg-wrapper'))
+let pendingImageData = null;
 
-// 배경 복원
-function loadBackgroundFromStorage() {
-  const saved = localStorage.getItem('customBackground');
-  if (saved) {
-    targetElement.style.backgroundImage = `url(${saved})`;
-    targetElement.style.backgroundSize = 'cover';
-    targetElement.style.backgroundPosition = 'center';
-  }
+// 배경 이미지 적용 함수
+function applyBackgroundImage(imageData) {
+  document.body.style.backgroundImage = `url(${imageData})`;
+  document.body.style.backgroundSize = 'cover';
+  document.body.style.backgroundPosition = 'center';
+  localStorage.setItem('customBackground', imageData);
 }
 
-function setBackgroundImage(file) {
+// File → Base64 변환
+function readFileAsDataURL(file, callback) {
   const reader = new FileReader();
-  reader.onload = () => {
-    const imageData = reader.result;
-    targetElement.style.backgroundImage = `url(${imageData})`;
-    targetElement.style.backgroundSize = 'cover';
-    targetElement.style.backgroundPosition = 'center';
-    localStorage.setItem('customBackground', imageData);
-  };
+  reader.onload = () => callback(reader.result);
   reader.readAsDataURL(file);
 }
 
@@ -30,11 +19,13 @@ function setBackgroundImage(file) {
 bgFileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file && file.type.startsWith('image/')) {
-    setBackgroundImage(file);
+    readFileAsDataURL(file, (dataUrl) => {
+      pendingImageData = dataUrl; // 임시 저장
+    });
   }
 });
 
-// 드래그 앤 드롭
+// 드래그 드롭
 dropZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   dropZone.classList.add('border-primary');
@@ -47,23 +38,34 @@ dropZone.addEventListener('drop', (e) => {
   dropZone.classList.remove('border-primary');
   const file = e.dataTransfer.files[0];
   if (file && file.type.startsWith('image/')) {
-    bgFileInput.files = e.dataTransfer.files; // 미리보기 반영
-    setBackgroundImage(file);
+    bgFileInput.files = e.dataTransfer.files;
+    readFileAsDataURL(file, (dataUrl) => {
+      pendingImageData = dataUrl;
+    });
   }
 });
 
-// 초기화 버튼
+// 확인 버튼 클릭 시 적용
+confirmBtn.addEventListener('click', () => {
+  if (pendingImageData) {
+    applyBackgroundImage(pendingImageData);
+    pendingImageData = null;
+  }
+});
+
+// 초기화
 resetBtn.addEventListener('click', () => {
   localStorage.removeItem('customBackground');
-  targetElement.style.backgroundImage = '';
+  document.body.style.backgroundImage = '';
+  pendingImageData = null;
+  bgFileInput.value = '';
 });
 
-// 확인 버튼
-confirmBtn.addEventListener('click', () => {
-  const file = bgFileInput.files[0];
-  if (file && file.type.startsWith('image/')) {
-    setBackgroundImage(file);
+// 페이지 진입 시 로컬스토리지에서 배경 복원
+function loadBackgroundFromStorage() {
+  const saved = localStorage.getItem('customBackground');
+  if (saved) {
+    applyBackgroundImage(saved);
   }
-});
-
+}
 loadBackgroundFromStorage();
