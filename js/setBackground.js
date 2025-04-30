@@ -1,4 +1,8 @@
+const confirmBtn = document.getElementById('confirmBackgroundBtn');
+const resetBtn = document.getElementById('resetBackground');
 let pendingImageData = null;
+
+console.log(confirmBtn, resetBtn);
 
 // 배경 이미지 적용 함수
 function applyBackgroundImage(imageData) {
@@ -20,7 +24,7 @@ bgFileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file && file.type.startsWith('image/')) {
     readFileAsDataURL(file, (dataUrl) => {
-      pendingImageData = dataUrl; // 임시 저장
+      pendingImageData = dataUrl; 
     });
   }
 });
@@ -45,13 +49,19 @@ dropZone.addEventListener('drop', (e) => {
   }
 });
 
-// 확인 버튼 클릭 시 적용
 confirmBtn.addEventListener('click', () => {
   if (pendingImageData) {
     applyBackgroundImage(pendingImageData);
     pendingImageData = null;
+
+    const modalElement = document.getElementById('settingModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
   }
 });
+
 
 // 초기화
 resetBtn.addEventListener('click', () => {
