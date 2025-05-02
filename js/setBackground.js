@@ -4,7 +4,7 @@ let pendingImageData = null;
 
 console.log(confirmBtn, resetBtn);
 
-// 배경 이미지 적용 함수
+// 배경 이미지 적용
 function applyBackgroundImage(imageData) {
   document.body.style.backgroundImage = `url(${imageData})`;
   document.body.style.backgroundSize = 'cover';
@@ -12,7 +12,7 @@ function applyBackgroundImage(imageData) {
   localStorage.setItem('customBackground', imageData);
 }
 
-// File → Base64 변환
+// File 변환
 function readFileAsDataURL(file, callback) {
   const reader = new FileReader();
   reader.onload = () => callback(reader.result);
@@ -49,6 +49,7 @@ dropZone.addEventListener('drop', (e) => {
   }
 });
 
+// 이미지 등록 후 모달 숨김
 confirmBtn.addEventListener('click', () => {
   if (pendingImageData) {
     applyBackgroundImage(pendingImageData);
@@ -62,7 +63,6 @@ confirmBtn.addEventListener('click', () => {
   }
 });
 
-
 // 초기화
 resetBtn.addEventListener('click', () => {
   localStorage.removeItem('customBackground');
@@ -71,7 +71,7 @@ resetBtn.addEventListener('click', () => {
   bgFileInput.value = '';
 });
 
-// 페이지 진입 시 로컬스토리지에서 배경 복원
+// 로컬스토리지에서 배경 복원
 function loadBackgroundFromStorage() {
   const saved = localStorage.getItem('customBackground');
   if (saved) {
