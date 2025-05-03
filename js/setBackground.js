@@ -2,8 +2,6 @@ const confirmBtn = document.getElementById('confirmBackgroundBtn');
 const resetBtn = document.getElementById('resetBackground');
 let pendingImageData = null;
 
-console.log(confirmBtn, resetBtn);
-
 // 배경 이미지 적용
 function applyBackgroundImage(imageData) {
   document.body.style.backgroundImage = `url(${imageData})`;
