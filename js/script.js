@@ -1,56 +1,65 @@
-// commute tracker script.js
-
 const nameInput = document.getElementById('name');
+
 const arrivalInput = document.getElementById('arrivalTime');
 const departureInput = document.getElementById('departureTime');
-const arrivalReportBtn = document.getElementById('arrivalBtn');
-const departureReportBtn = document.getElementById('departureBtn');
+
 const fillArrivalBtn = document.getElementById('fillArrivalTime');
 const fillDepartureBtn = document.getElementById('fillDepartureTime');
 
-const getMYTimeString = () => {
-  const now = new Date().toLocaleTimeString('ko-KR', {
+const arrivalReportBtn = document.getElementById('arrivalBtn');
+const departureReportBtn = document.getElementById('departureBtn');
+
+function getMYTimeString() {
+  const now = new Date();
+  return now.toLocaleTimeString('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
     timeZone: 'Asia/Kuala_Lumpur',
   });
-  return now;
-};
+}
 
-const formatMYDateTime = (timeStr, offset = 0) => {
-  const now = new Date();
-  now.setDate(now.getDate() + offset);
+function formatMYDateTime(date, timeStr) {
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const day = weekdays[now.getDay()];
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const day = weekdays[date.getDay()];
   return `${mm}월 ${dd}일(${day}) ${timeStr}`;
-};
+}
 
-const sendTelegramMessage = (message) => {
+function sendTelegramMessage(message) {
   fetch('/.netlify/functions/sendTelegram', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
   });
-};
+}
 
-const saveToLocalStorage = () => {
+function saveToLocalStorage() {
   const data = {
     name: nameInput.value.trim(),
     arrival: arrivalInput.value.trim(),
     departure: departureInput.value.trim(),
   };
   localStorage.setItem('commuteData', JSON.stringify(data));
-};
+}
 
-const loadFromLocalStorage = () => {
+function loadFromLocalStorage() {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   if (data.name) nameInput.value = data.name;
   if (data.arrival) arrivalInput.value = data.arrival;
   if (data.departure) departureInput.value = data.departure;
-};
+}
+
+function getYesterday() {
+  const now = new Date();
+  now.setDate(now.getDate() - 1);
+  return now;
+}
+
+function getToday() {
+  return new Date();
+}
 
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
@@ -64,35 +73,36 @@ fillDepartureBtn.addEventListener('click', () => {
   saveToLocalStorage();
 });
 
-arrivalInput.addEventListener('input', saveToLocalStorage);
-departureInput.addEventListener('input', saveToLocalStorage);
-nameInput.addEventListener('input', saveToLocalStorage);
+[nameInput, arrivalInput, departureInput].forEach(el => {
+  el.addEventListener('input', saveToLocalStorage);
+});
 
 arrivalReportBtn.addEventListener('click', () => {
-  const name = nameInput.value.trim() || '이름 없음';
-  const current = getMYTimeString();
-  const arrival = arrivalInput.value.trim() || current;
-  const prevDeparture = JSON.parse(localStorage.getItem('commuteData') || '{}').departure || '미입력';
-  arrivalInput.value = arrival;
-  saveToLocalStorage();
+  const name = nameInput.value || '이름 없음';
+  const arrival = arrivalInput.value.trim() || getMYTimeString();
+  const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  const prevDeparture = prevData.departure || '미입력';
 
   const msg = `${name} 출근 보고드립니다.\n` +
-              `-퇴근 ${formatMYDateTime(prevDeparture, -1)}\n` +
-              `-출근 ${formatMYDateTime(arrival)}`;
+              `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)}\n` +
+              `-출근 ${formatMYDateTime(getToday(), arrival)}`;
+
+  arrivalInput.value = arrival;
+  saveToLocalStorage();
   sendTelegramMessage(msg);
 });
 
 departureReportBtn.addEventListener('click', () => {
-  const name = nameInput.value.trim() || '이름 없음';
-  const current = getMYTimeString();
-  const departure = departureInput.value.trim() || current;
+  const name = nameInput.value || '이름 없음';
+  const departure = departureInput.value.trim() || getMYTimeString();
   const arrival = arrivalInput.value.trim() || '미입력';
-  departureInput.value = departure;
-  saveToLocalStorage();
 
   const msg = `${name} 퇴근 보고드립니다.\n` +
-              `-출근 ${formatMYDateTime(arrival)}\n` +
-              `-퇴근 ${formatMYDateTime(departure)}`;
+              `-출근 ${formatMYDateTime(getToday(), arrival)}\n` +
+              `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
+
+  departureInput.value = departure;
+  saveToLocalStorage();
   sendTelegramMessage(msg);
 });
 
