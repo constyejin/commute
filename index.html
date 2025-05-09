@@ -10,13 +10,14 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div div class="wrap">
+  <div class="wrap">
     <div class="contents-wrap">
       <section>
         <h3 class="logo">
           <img src="./assets/img/logo.png" alt="logo_img">
         </h3>
-        <form id="reportForm">
+
+        <form id="reportForm" class="report-form">
           <div class="input-group">
             <label for="name"><i class="las la-user-circle"></i> 이름:</label>
             <input type="text" id="name" name="userName">
@@ -51,6 +52,11 @@
     <a class="setting-btn" href="javascript:;" data-bs-toggle="modal" data-bs-target="#settingModal">
       <i class="las la-cog"></i>
     </a>
+  </div>
+
+
+  <div id="toast" class="toast showing">
+    <p>전송 완료</p>
   </div>
 
   <!-- 배경 설정 모달 -->
