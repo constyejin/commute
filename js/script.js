@@ -32,7 +32,21 @@ function sendTelegramMessage(message) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
-  });
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok) {
+      // 성공 처리 영역
+      showToast('전송 완료!');
+    } else {
+      // 실패 처리
+      alert('전송 실패!');
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Error');
+  })
 }
 
 function saveToLocalStorage() {
