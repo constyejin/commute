@@ -28,10 +28,9 @@ function formatMYDateTime(date, timeStr) {
 }
 
 function showToast(message = '전송 완료') {
-  const toast = document.createElement('div');
-  toast.id = 'toast';
+  const toast = document.getElementById('toast');
   toast.textContent = message;
-  document.body.appendChild(toast);
+  
   requestAnimationFrame(() => {
     toast.style.opacity = 1;
   });
@@ -50,7 +49,7 @@ function sendTelegramMessage(message) {
   .then(res => res.json())
   .then(data => {
     if (data.ok) {
-      showToast('전송 완료!');
+      showToast();
     } else {
       alert('전송 실패!');
     }
