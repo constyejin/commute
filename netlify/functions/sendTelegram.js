@@ -1,8 +1,8 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function(event) {
-  const BOT_TOKEN = '...';
-  const CHAT_ID = '...';
+  const BOT_TOKEN = '8011930241:AAE7P8NlflY20-amZRVMptBTYvpzBXic9zQ';
+  const CHAT_ID = '-1002265678123';
 
   if (event.httpMethod !== 'POST') {
     return {
