@@ -28,7 +28,7 @@ function formatMYDateTime(date, timeStr) {
 }
 
 function showToast(message = '전송 완료') {
-  const toast = document.getElementById('toast');
+  const toast = document.getElementById('globalToast');
   toast.textContent = message;
 
   requestAnimationFrame(() => {
@@ -90,6 +90,7 @@ fillDepartureBtn.addEventListener('click', () => {
   el.addEventListener('input', saveToLocalStorage);
 });
 
+
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
@@ -100,10 +101,13 @@ arrivalReportBtn.addEventListener('click', () => {
               `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)}\n` +
               `-출근 ${formatMYDateTime(getToday(), arrival)}`;
 
+  document.getElementById('report').textContent = msg;
+
   arrivalInput.value = arrival;
   saveToLocalStorage();
   sendTelegramMessage(msg);
 });
+
 
 departureReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
@@ -114,9 +118,12 @@ departureReportBtn.addEventListener('click', () => {
               `-출근 ${formatMYDateTime(getToday(), arrival)}\n` +
               `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
 
+  document.getElementById('report').textContent = msg;
+
   departureInput.value = departure;
   saveToLocalStorage();
   sendTelegramMessage(msg);
 });
+
 
 loadFromLocalStorage();
