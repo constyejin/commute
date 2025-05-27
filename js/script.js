@@ -78,11 +78,11 @@ function updateReportPreview() {
   if (arrival && !departure) {
     const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
     const prevDeparture = prevData.departure || '미입력';
-    msg = `${name} 출근 보고 미리보기\n` +
+    msg = `${name} 출근 보고드립니다.\n` +
           `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)}\n` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}`;
   } else if (arrival && departure) {
-    msg = `${name} 퇴근 보고 미리보기\n` +
+    msg = `${name} 퇴근 보고드립니다.\n` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}\n` +
           `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
   } else {
@@ -148,6 +148,6 @@ departureReportBtn.addEventListener('click', () => {
   sendTelegramMessage(msg);
 });
 
-// 최초 실행
+
 loadFromLocalStorage();
 updateReportPreview();
