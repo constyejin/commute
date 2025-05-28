@@ -78,12 +78,12 @@ function updateReportPreview() {
   if (arrival && !departure) {
     const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
     const prevDeparture = prevData.departure || '미입력';
-    msg = `${name} 출근 보고드립니다.\n` +
-          `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)}\n` +
+    msg = `${name} 출근 보고드립니다. <br>` +
+          `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)} <br>` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}`;
   } else if (arrival && departure) {
-    msg = `${name} 퇴근 보고드립니다.\n` +
-          `-출근 ${formatMYDateTime(getToday(), arrival)}\n` +
+    msg = `${name} 퇴근 보고드립니다. <br>` +
+          `-출근 ${formatMYDateTime(getToday(), arrival)} <br>` +
           `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
   } else {
     msg = '입력된 정보가 부족합니다.';
