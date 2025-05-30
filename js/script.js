@@ -9,10 +9,8 @@ const arrivalReportBtn = document.getElementById('arrivalBtn');
 const departureReportBtn = document.getElementById('departureBtn');
 
 const reportBox = document.getElementById('report');
-const toastElement = document.getElementById('globalToast');
-const toastMessage = document.getElementById('globalToastMessage');
 
-// Utility functions
+// 시간 및 날짜 관련 함수
 function getMYTimeString() {
   const now = new Date();
   return now.toLocaleTimeString('ko-KR', {
@@ -23,16 +21,6 @@ function getMYTimeString() {
   });
 }
 
-function getToday() {
-  return new Date();
-}
-
-function getYesterday() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d;
-}
-
 function formatMYDateTime(date, timeStr) {
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
   const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -41,28 +29,17 @@ function formatMYDateTime(date, timeStr) {
   return `${mm}월 ${dd}일(${day}) ${timeStr}`;
 }
 
-// Toast display using Bootstrap
-function showToast(message = '전송 완료') {
-  toastMessage.textContent = message;
-  const bsToast = new bootstrap.Toast(toastElement);
-  bsToast.show();
+function getYesterday() {
+  const now = new Date();
+  now.setDate(now.getDate() - 1);
+  return now;
 }
 
-// Telegram send
-function sendTelegramMessage(msg) {
-  fetch('/.netlify/functions/sendTelegram', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: msg }),
-  })
-    .then(res => {
-      if (res.ok) showToast('전송 완료');
-      else showToast('전송 실패');
-    })
-    .catch(() => showToast('전송 실패'));
+function getToday() {
+  return new Date();
 }
 
-// LocalStorage handlers
+// 로컬스토리지 저장/불러오기
 function saveToLocalStorage() {
   const data = {
     name: nameInput.value.trim(),
@@ -79,40 +56,76 @@ function loadFromLocalStorage() {
   if (data.departure) departureInput.value = data.departure;
 }
 
-// Preview updater
-function updateReportPreview() {
+// 텔레그램 메시지 전송
+function sendTelegramMessage(message) {
+  fetch('/.netlify/functions/sendTelegram', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+}
+
+// 토스트 메시지
+function showToast(message = '전송 완료') {
+  const toast = document.getElementById('globalToast');
+  const toastMessage = document.getElementById('globalToastMessage');
+  toastMessage.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
+}
+
+// 미리보기 업데이트 (mode: 'arrival' | 'departure' | null)
+function updateReportPreview(mode = null) {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value;
   const departure = departureInput.value;
 
-  let msg;
-  if (arrival && !departure) {
+  let msg = '';
+
+  if (mode === 'arrival') {
     const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
     const prevDeparture = prevData.departure || '미입력';
     msg = `${name} 출근 보고드립니다.<br>` +
           `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)}<br>` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}`;
-  } else if (arrival && departure) {
+  } else if (mode === 'departure') {
     msg = `${name} 퇴근 보고드립니다.<br>` +
-          `-출근 ${formatMYDateTime(getToday(), arrival)}<br>` +
+          `-출근 ${formatMYDateTime(getToday(), arrival || '미입력')}<br>` +
           `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
   } else {
-    msg = '입력된 정보가 부족합니다.';
+    if (arrival && !departure) {
+      const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
+      const prevDeparture = prevData.departure || '미입력';
+      msg = `${name} 출근 보고드립니다.<br>` +
+            `-퇴근 ${formatMYDateTime(getYesterday(), prevDeparture)}<br>` +
+            `-출근 ${formatMYDateTime(getToday(), arrival)}`;
+    } else if (arrival && departure) {
+      msg = `${name} 퇴근 보고드립니다.<br>` +
+            `-출근 ${formatMYDateTime(getToday(), arrival)}<br>` +
+            `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
+    } else {
+      msg = '입력된 정보가 부족합니다.';
+    }
   }
+
   reportBox.innerHTML = msg;
 }
 
-// Event listeners
+// 버튼 이벤트
 fillArrivalBtn.addEventListener('click', () => {
-  arrivalInput.value = getMYTimeString();
+  const now = getMYTimeString();
+  arrivalInput.value = now;
   saveToLocalStorage();
-  updateReportPreview();
+  updateReportPreview('arrival');
 });
 
 fillDepartureBtn.addEventListener('click', () => {
-  departureInput.value = getMYTimeString();
+  const now = getMYTimeString();
+  departureInput.value = now;
   saveToLocalStorage();
-  updateReportPreview();
+  updateReportPreview('departure');
 });
 
 [nameInput, arrivalInput, departureInput].forEach(el => {
@@ -134,8 +147,9 @@ arrivalReportBtn.addEventListener('click', () => {
 
   arrivalInput.value = arrival;
   saveToLocalStorage();
-  reportBox.innerHTML = msg.replace(/\n/g, '<br>');
   sendTelegramMessage(msg);
+  showToast();
+  updateReportPreview('arrival');
 });
 
 departureReportBtn.addEventListener('click', () => {
@@ -149,10 +163,11 @@ departureReportBtn.addEventListener('click', () => {
 
   departureInput.value = departure;
   saveToLocalStorage();
-  reportBox.innerHTML = msg.replace(/\n/g, '<br>');
   sendTelegramMessage(msg);
+  showToast();
+  updateReportPreview('departure');
 });
 
-// Initialization
+// 초기 로드
 loadFromLocalStorage();
 updateReportPreview();
