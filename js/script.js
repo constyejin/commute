@@ -10,6 +10,7 @@ const departureReportBtn = document.getElementById('departureBtn');
 
 const reportBox = document.getElementById('report');
 
+// ✅ 공통 유틸
 function getMYTimeString() {
   const now = new Date();
   return now.toLocaleTimeString('ko-KR', {
@@ -30,11 +31,10 @@ function formatMYDateTime(date, timeStr) {
 
 function showToast(message = '전송 완료') {
   const toast = document.getElementById('globalToast');
-  toast.textContent = message;
-  toast.style.opacity = 1;
-  setTimeout(() => {
-    toast.style.opacity = 0;
-  }, 2000);
+  const toastMessage = document.getElementById('globalToastMessage');
+  toastMessage.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 function sendTelegramMessage(message) {
@@ -45,6 +45,7 @@ function sendTelegramMessage(message) {
   });
 }
 
+// ✅ LocalStorage
 function saveToLocalStorage() {
   const data = {
     name: nameInput.value.trim(),
@@ -65,43 +66,42 @@ function getToday() {
   return new Date();
 }
 
-function calculateWeekendAdjustedDepartureDate() {
-  const startDate = new Date();
-  const saturdayChecked = document.getElementById('chk_saturday')?.checked;
-  const sundayChecked = document.getElementById('chk_sunday')?.checked;
-  let endDate = new Date(startDate);
+// ✅ 금/토/일 선택에 따른 퇴근일 계산
+function getLastWorkdayDate() {
+  const selected = document.querySelector('input[name="weekend"]:checked')?.value;
+  const base = new Date();
 
-  if (startDate.getDay() === 1) {
-    if (sundayChecked) {
-      endDate.setDate(startDate.getDate() - 1);
-    } else if (saturdayChecked) {
-      endDate.setDate(startDate.getDate() - 2);
-    } else {
-      endDate.setDate(startDate.getDate() - 3);
-    }
-  } else {
-    endDate.setDate(startDate.getDate() - 1);
-    if (endDate.getDay() === 6) endDate.setDate(endDate.getDate() - 1);
-    else if (endDate.getDay() === 0) endDate.setDate(endDate.getDate() - 2);
+  const date = new Date(base);
+  switch (selected) {
+    case 'fri':
+      date.setDate(date.getDate() - 3);
+      break;
+    case 'sat':
+      date.setDate(date.getDate() - 2);
+      break;
+    case 'sun':
+      date.setDate(date.getDate() - 1);
+      break;
+    default:
+      date.setDate(date.getDate() - 3);
   }
-
-  return endDate;
+  return date;
 }
 
+// ✅ 보고 미리보기
 function updateReportPreview(mode = null) {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value;
   const departure = departureInput.value;
+  const lastWorkday = getLastWorkdayDate();
+  const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  const prevDeparture = prevData.departure || '미입력';
 
   let msg = '';
 
   if (mode === 'arrival') {
-    const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
-    const prevDeparture = prevData.departure || '미입력';
-    const endDate = calculateWeekendAdjustedDepartureDate();
-
     msg = `${name} 출근 보고드립니다.<br>` +
-          `-퇴근 ${formatMYDateTime(endDate, prevDeparture)}<br>` +
+          `-퇴근 ${formatMYDateTime(lastWorkday, prevDeparture)}<br>` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}`;
   } else if (mode === 'departure') {
     msg = `${name} 퇴근 보고드립니다.<br>` +
@@ -109,12 +109,8 @@ function updateReportPreview(mode = null) {
           `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
   } else {
     if (arrival && !departure) {
-      const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
-      const prevDeparture = prevData.departure || '미입력';
-      const endDate = calculateWeekendAdjustedDepartureDate();
-
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-퇴근 ${formatMYDateTime(endDate, prevDeparture)}<br>` +
+            `-퇴근 ${formatMYDateTime(lastWorkday, prevDeparture)}<br>` +
             `-출근 ${formatMYDateTime(getToday(), arrival)}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
@@ -128,6 +124,7 @@ function updateReportPreview(mode = null) {
   reportBox.innerHTML = msg;
 }
 
+// ✅ 버튼 이벤트
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
@@ -142,22 +139,15 @@ fillDepartureBtn.addEventListener('click', () => {
   updateReportPreview('departure');
 });
 
-[nameInput, arrivalInput, departureInput].forEach(el => {
-  el.addEventListener('input', () => {
-    saveToLocalStorage();
-    updateReportPreview();
-  });
-});
-
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
   const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const prevDeparture = prevData.departure || '미입력';
-  const endDate = calculateWeekendAdjustedDepartureDate();
+  const lastWorkday = getLastWorkdayDate();
 
   const msg = `${name} 출근 보고드립니다.\n` +
-              `-퇴근 ${formatMYDateTime(endDate, prevDeparture)}\n` +
+              `-퇴근 ${formatMYDateTime(lastWorkday, prevDeparture)}\n` +
               `-출근 ${formatMYDateTime(getToday(), arrival)}`;
 
   arrivalInput.value = arrival;
@@ -183,5 +173,21 @@ departureReportBtn.addEventListener('click', () => {
   updateReportPreview('departure');
 });
 
+// ✅ 인풋 값 변경 시 자동 업데이트
+[nameInput, arrivalInput, departureInput].forEach(el => {
+  el.addEventListener('input', () => {
+    saveToLocalStorage();
+    updateReportPreview();
+  });
+});
+
+// ✅ 라디오 버튼 변경 시도 미리보기 업데이트
+document.querySelectorAll('input[name="weekend"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    updateReportPreview();
+  });
+});
+
+// 초기화
 loadFromLocalStorage();
 updateReportPreview();
