@@ -67,8 +67,8 @@ function getToday() {
 }
 
 // 금/토/일 선택에 따른 퇴근일 계산
-function getLastWorkdayDate() {
-  const selected = document.querySelector('input[name="weekend"]:checked')?.value;
+function getLastWorkdayDate(selectedDay = null) {
+  const selected = selectedDay || document.querySelector('input[name="weekend"]:checked')?.value;
   const base = new Date();
   const date = new Date(base);
 
@@ -83,20 +83,23 @@ function getLastWorkdayDate() {
       date.setDate(date.getDate() - 1);
       break;
     default:
-      date.setDate(date.getDate() - 3);
+      date.setDate(date.getDate() - 3); // 기본: 금요일
   }
+
   return date;
 }
 
-// 보고 미리보기
+
 // 보고 미리보기
 function updateReportPreview(mode = null) {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value;
   const departure = departureInput.value;
-  const lastWorkday = getLastWorkdayDate();
   const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const prevDeparture = prevData.departure || '미입력';
+
+  const selectedDay = document.querySelector('input[name="weekend"]:checked')?.value || 'fri';
+  const lastWorkday = getLastWorkdayDate(selectedDay);  // 여기에서 직접 값 넘김
 
   let msg = '';
 
@@ -111,7 +114,7 @@ function updateReportPreview(mode = null) {
   } else {
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-퇴근 ${formatMYDateTime(getLastWorkdayDate(), prevDeparture)}<br>` +
+            `-퇴근 ${formatMYDateTime(lastWorkday, prevDeparture)}<br>` +
             `-출근 ${formatMYDateTime(getToday(), arrival)}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
@@ -124,6 +127,7 @@ function updateReportPreview(mode = null) {
 
   reportBox.innerHTML = msg;
 }
+
 
 
 // 버튼 이벤트
