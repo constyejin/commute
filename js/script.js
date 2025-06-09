@@ -70,8 +70,8 @@ function getToday() {
 function getLastWorkdayDate() {
   const selected = document.querySelector('input[name="weekend"]:checked')?.value;
   const base = new Date();
-
   const date = new Date(base);
+
   switch (selected) {
     case 'fri':
       date.setDate(date.getDate() - 3);
@@ -89,6 +89,7 @@ function getLastWorkdayDate() {
 }
 
 // 보고 미리보기
+// 보고 미리보기
 function updateReportPreview(mode = null) {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value;
@@ -97,15 +98,10 @@ function updateReportPreview(mode = null) {
   const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const prevDeparture = prevData.departure || '미입력';
 
-  const selectedDay = document.querySelector('input[name="weekend"]:checked')?.value || 'fri';
-  const dayLabels = { fri: '금요일', sat: '토요일', sun: '일요일' };
-  const dayLabel = dayLabels[selectedDay];
-
   let msg = '';
 
   if (mode === 'arrival') {
     msg = `${name} 출근 보고드립니다.<br>` +
-          `-마지막 출근: ${dayLabel}<br>` +
           `-퇴근 ${formatMYDateTime(lastWorkday, prevDeparture)}<br>` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}`;
   } else if (mode === 'departure') {
@@ -115,8 +111,7 @@ function updateReportPreview(mode = null) {
   } else {
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-마지막 출근: ${dayLabel}<br>` +
-            `-퇴근 ${formatMYDateTime(lastWorkday, prevDeparture)}<br>` +
+            `-퇴근 ${formatMYDateTime(getLastWorkdayDate(), prevDeparture)}<br>` +
             `-출근 ${formatMYDateTime(getToday(), arrival)}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
