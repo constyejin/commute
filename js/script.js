@@ -46,20 +46,22 @@ function sendTelegramMessage(message) {
 
 const saveToLocalStorage = () => {
   const departure = departureInput.value.trim();
+  const arrival = arrivalInput.value.trim();
   const now = new Date();
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const formattedDeparture = departure
-    ? `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}(${weekdays[now.getDay()]}) ${departure}`
-    : '';
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const day = weekdays[now.getDay()];
 
   const data = {
     name: nameInput.value.trim(),
-    arrival: arrivalInput.value.trim(),
+    arrival,
     departure,
-    fullDeparture: formattedDeparture,
-    lastDepartureDate: now.toISOString(),
-    lastDepartureDay: weekdays[now.getDay()],
+    lastDepartureDate: `${mm}월 ${dd}일`,
+    lastDepartureDay: day,
+    lastDepartureTime: departure,
   };
+
   localStorage.setItem('commuteData', JSON.stringify(data));
 };
 
@@ -75,33 +77,40 @@ function getToday() {
 }
 
 function updateReportPreview(mode = null) {
+  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const name = nameInput.value || '이름 없음';
-  const arrival = arrivalInput.value;
-  const departure = departureInput.value;
-  const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  const prevDeparture = prevData.departure || '미입력';
-  const prevDayStr = prevData.lastDepartureDay || '?';
-  const lastDepartureDate = prevData.lastDepartureDate ? new Date(prevData.lastDepartureDate) : getToday();
+  const arrival = arrivalInput.value.trim();
+  const departure = departureInput.value.trim();
+
+  const lastDate = data.lastDepartureDate || '날짜';
+  const lastDay = data.lastDepartureDay || '요일';
+  const lastTime = data.lastDepartureTime || '시간';
+
+  const today = getToday();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayDay = weekdays[today.getDay()];
 
   let msg = '';
 
   if (mode === 'arrival') {
     msg = `${name} 출근 보고드립니다.<br>` +
-          `-퇴근 ${formatMYDateTime(lastDepartureDate, prevDeparture)}<br>` +
-          `-출근 ${formatMYDateTime(getToday(), arrival)}`;
+          `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
+          `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
   } else if (mode === 'departure') {
     msg = `${name} 퇴근 보고드립니다.<br>` +
-          `-출근 ${formatMYDateTime(getToday(), arrival || '미입력')}<br>` +
-          `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
+          `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}<br>` +
+          `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
   } else {
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-퇴근 ${formatMYDateTime(lastDepartureDate, prevDeparture)}<br>` +
-            `-출근 ${formatMYDateTime(getToday(), arrival)}`;
+            `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
+            `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
-            `-출근 ${formatMYDateTime(getToday(), arrival)}<br>` +
-            `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
+            `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}<br>` +
+            `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
     } else {
       msg = '입력된 정보가 부족합니다.';
     }
@@ -127,13 +136,20 @@ fillDepartureBtn.addEventListener('click', () => {
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
-  const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  const prevDeparture = prevData.departure || '미입력';
-  const lastDepartureDate = prevData.lastDepartureDate ? new Date(prevData.lastDepartureDate) : getToday();
+  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  const lastDate = data.lastDepartureDate || '날짜';
+  const lastDay = data.lastDepartureDay || '요일';
+  const lastTime = data.lastDepartureTime || '시간';
+
+  const today = getToday();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayDay = weekdays[today.getDay()];
 
   const msg = `${name} 출근 보고드립니다.\n` +
-              `-퇴근 ${formatMYDateTime(lastDepartureDate, prevDeparture)}\n` +
-              `-출근 ${formatMYDateTime(getToday(), arrival)}`;
+              `-퇴근 ${lastDate}(${lastDay}) ${lastTime}\n` +
+              `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
 
   arrivalInput.value = arrival;
   saveToLocalStorage();
@@ -147,9 +163,15 @@ departureReportBtn.addEventListener('click', () => {
   const departure = departureInput.value.trim() || getMYTimeString();
   const arrival = arrivalInput.value.trim() || '미입력';
 
+  const today = getToday();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayDay = weekdays[today.getDay()];
+
   const msg = `${name} 퇴근 보고드립니다.\n` +
-              `-출근 ${formatMYDateTime(getToday(), arrival)}\n` +
-              `-퇴근 ${formatMYDateTime(getToday(), departure)}`;
+              `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}\n` +
+              `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
 
   departureInput.value = departure;
   saveToLocalStorage();
