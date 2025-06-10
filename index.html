@@ -67,12 +67,13 @@
   </div>
 
   <!-- 토스트: 전송 완료 -->
-  <div id="globalToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex justify-content-between">
+  <div id="globalToast" class="toast position-fixed bottom-0 end-0 p-3" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
       <div class="toast-body" id="globalToastMessage">메시지 영역</div>
       <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
   </div>
+
 
   <!-- 배경 설정 모달 -->
   <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="settingModalLabel" aria-hidden="true">
