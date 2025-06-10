@@ -82,6 +82,7 @@ function getToday() {
   return new Date();
 }
 
+
 function updateReportPreview(mode = null) {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const name = nameInput.value || '이름 없음';
@@ -109,7 +110,7 @@ function updateReportPreview(mode = null) {
           `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}<br>` +
           `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
   } else {
-    // 자동 판단 로직 → 수정 필요
+
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
             `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
@@ -118,10 +119,6 @@ function updateReportPreview(mode = null) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
             `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}<br>` +
             `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
-    } else if (!arrival && departure) {
-      msg = `${name} 퇴근 보고드립니다.<br>` +
-            `-출근 미입력<br>` +
-            `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
     } else {
       msg = '입력된 정보가 부족합니다.';
     }
@@ -129,6 +126,7 @@ function updateReportPreview(mode = null) {
 
   reportBox.innerHTML = msg;
 }
+
 
 
 fillArrivalBtn.addEventListener('click', () => {
@@ -170,6 +168,7 @@ arrivalReportBtn.addEventListener('click', () => {
   showToast();
   updateReportPreview('arrival');
 });
+
 
 
 departureReportBtn.addEventListener('click', () => {
