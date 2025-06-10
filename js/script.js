@@ -10,7 +10,6 @@ const departureReportBtn = document.getElementById('departureBtn');
 
 const reportBox = document.getElementById('report');
 
-// 공통 유틸
 function getMYTimeString() {
   const now = new Date();
   return now.toLocaleTimeString('ko-KR', {
@@ -45,12 +44,12 @@ function sendTelegramMessage(message) {
   });
 }
 
-// LocalStorage
-function saveToLocalStorage() {
+const saveToLocalStorage = () => {
   const departure = departureInput.value.trim();
   const now = new Date();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
   const formattedDeparture = departure
-    ? formatMYDateTime(now, departure)
+    ? `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}(${weekdays[now.getDay()]}) ${departure}`
     : '';
 
   const data = {
@@ -58,9 +57,11 @@ function saveToLocalStorage() {
     arrival: arrivalInput.value.trim(),
     departure,
     fullDeparture: formattedDeparture,
+    lastDepartureDate: now.toISOString(),
+    lastDepartureDay: weekdays[now.getDay()],
   };
   localStorage.setItem('commuteData', JSON.stringify(data));
-}
+};
 
 function loadFromLocalStorage() {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
@@ -73,42 +74,20 @@ function getToday() {
   return new Date();
 }
 
-// 금/토/일 선택에 따른 퇴근일 계산
-function getLastWorkdayDate(selectedDay = null) {
-  const selected = selectedDay || document.querySelector('input[name="weekend"]:checked')?.value;
-  const base = new Date();
-  const date = new Date(base);
-
-  switch (selected) {
-    case 'fri':
-      date.setDate(date.getDate() - 3);
-      break;
-    case 'sat':
-      date.setDate(date.getDate() - 2);
-      break;
-    case 'sun':
-      date.setDate(date.getDate() - 1);
-      break;
-    default:
-      date.setDate(date.getDate() - 3);
-  }
-
-  return date;
-}
-
-// 보고 미리보기
 function updateReportPreview(mode = null) {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value;
   const departure = departureInput.value;
   const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  const prevDeparture = prevData.fullDeparture || '미입력';
+  const prevDeparture = prevData.departure || '미입력';
+  const prevDayStr = prevData.lastDepartureDay || '?';
+  const lastDepartureDate = prevData.lastDepartureDate ? new Date(prevData.lastDepartureDate) : getToday();
 
   let msg = '';
 
   if (mode === 'arrival') {
     msg = `${name} 출근 보고드립니다.<br>` +
-          `-퇴근 ${prevDeparture}<br>` +
+          `-퇴근 ${formatMYDateTime(lastDepartureDate, prevDeparture)}<br>` +
           `-출근 ${formatMYDateTime(getToday(), arrival)}`;
   } else if (mode === 'departure') {
     msg = `${name} 퇴근 보고드립니다.<br>` +
@@ -117,7 +96,7 @@ function updateReportPreview(mode = null) {
   } else {
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-퇴근 ${prevDeparture}<br>` +
+            `-퇴근 ${formatMYDateTime(lastDepartureDate, prevDeparture)}<br>` +
             `-출근 ${formatMYDateTime(getToday(), arrival)}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
@@ -131,7 +110,6 @@ function updateReportPreview(mode = null) {
   reportBox.innerHTML = msg;
 }
 
-// 버튼 이벤트
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
@@ -150,10 +128,11 @@ arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
   const prevData = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  const prevDeparture = prevData.fullDeparture || '미입력';
+  const prevDeparture = prevData.departure || '미입력';
+  const lastDepartureDate = prevData.lastDepartureDate ? new Date(prevData.lastDepartureDate) : getToday();
 
   const msg = `${name} 출근 보고드립니다.\n` +
-              `-퇴근 ${prevDeparture}\n` +
+              `-퇴근 ${formatMYDateTime(lastDepartureDate, prevDeparture)}\n` +
               `-출근 ${formatMYDateTime(getToday(), arrival)}`;
 
   arrivalInput.value = arrival;
@@ -182,12 +161,6 @@ departureReportBtn.addEventListener('click', () => {
 [nameInput, arrivalInput, departureInput].forEach(el => {
   el.addEventListener('input', () => {
     saveToLocalStorage();
-    updateReportPreview();
-  });
-});
-
-document.querySelectorAll('input[name="weekend"]').forEach(radio => {
-  radio.addEventListener('change', () => {
     updateReportPreview();
   });
 });
