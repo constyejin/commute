@@ -32,8 +32,9 @@ function showToast(message = '전송 완료') {
   const toast = document.getElementById('globalToast');
   const toastMessage = document.getElementById('globalToastMessage');
   toastMessage.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
+
+  const bsToast = new bootstrap.Toast(toast);
+  bsToast.show();
 }
 
 function sendTelegramMessage(message) {
