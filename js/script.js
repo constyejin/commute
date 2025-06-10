@@ -112,7 +112,7 @@ function updateReportPreview(mode = null) {
     
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
+            `-퇴근 ${lastDate}(${lastDay}) ${departure}<br>` +
             `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
@@ -158,7 +158,7 @@ arrivalReportBtn.addEventListener('click', () => {
   const todayDay = weekdays[today.getDay()];
 
   const msg = `${name} 출근 보고드립니다.\n` +
-              `-퇴근 ${lastDate}(${lastDay}) ${lastTime}\n` +
+              `-퇴근 ${lastDate}(${lastDay}) ${departure}\n` +
               `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
 
   arrivalInput.value = arrival;
