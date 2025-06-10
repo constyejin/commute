@@ -64,8 +64,7 @@ const saveToLocalStorage = () => {
     arrival,
     departure,
     lastDepartureDate: `${mm}월 ${dd}일`,
-    lastDepartureDay: day,
-    lastDepartureTime: departure,
+    lastDepartureDay: day
   };
 
   localStorage.setItem('commuteData', JSON.stringify(data));
@@ -91,7 +90,6 @@ function updateReportPreview(mode = null) {
 
   const lastDate = data.lastDepartureDate || '날짜';
   const lastDay = data.lastDepartureDay || '요일';
-  const lastTime = data.lastDepartureTime || '시간';
 
   const today = getToday();
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -111,6 +109,7 @@ function updateReportPreview(mode = null) {
           `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
   } else {
 
+    
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
             `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
@@ -126,6 +125,7 @@ function updateReportPreview(mode = null) {
 
   reportBox.innerHTML = msg;
 }
+
 
 
 
@@ -150,7 +150,6 @@ arrivalReportBtn.addEventListener('click', () => {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const lastDate = data.lastDepartureDate || '날짜';
   const lastDay = data.lastDepartureDay || '요일';
-  const lastTime = data.lastDepartureTime || '시간';
 
   const today = getToday();
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
