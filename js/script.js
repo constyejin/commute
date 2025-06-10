@@ -145,6 +145,7 @@ fillDepartureBtn.addEventListener('click', () => {
   updateReportPreview('departure');
 });
 
+
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
@@ -169,6 +170,7 @@ arrivalReportBtn.addEventListener('click', () => {
   showToast();
   updateReportPreview('arrival');
 });
+
 
 departureReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
