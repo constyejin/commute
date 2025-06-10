@@ -370,20 +370,17 @@ section button {
   position: absolute;
   top: 50%;
   right: 50%;
-  transform: translate(-50%,-50%);
+  transform: translateY(-50%);
   width: 160px;
   height: 120px;
   background-color: #fff;
   border: 2px solid red;
 }
 
-.toast p {
-  margin: 0;
+.toast .btn-close {
+  font-size: 20px;
+  color: #000;
 }
-
-/* .toast.text-bg-danger {
-  background:var(--state-danger)
-} */
 
 .setting-btn {
   display: flex;
