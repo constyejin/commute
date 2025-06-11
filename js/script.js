@@ -174,14 +174,16 @@ fillDepartureBtn.addEventListener('click', () => {
 // });
 
 arrivalReportBtn.addEventListener('click', () => {
-  const now = getMYTimeString();
-  arrivalInput.value = now; 
+  if (!arrivalInput.value.trim()) {
+    arrivalInput.value = getMYTimeString();
+  }
   saveToLocalStorage();
   const msg = generateArrivalReport();
   showToast();
   updateReportPreview('arrival');
   copyToClipboard(msg);
 });
+
 
 
 // departureReportBtn.addEventListener('click', () => {
@@ -194,8 +196,9 @@ arrivalReportBtn.addEventListener('click', () => {
 // });
 
 departureReportBtn.addEventListener('click', () => {
-  const now = getMYTimeString();
-  departureInput.value = now; 
+  if (!departureInput.value.trim()) {
+    departureInput.value = getMYTimeString();
+  }
   saveToLocalStorage();
   const msg = generateDepartureReport();
   showToast();
