@@ -10,7 +10,6 @@ const departureReportBtn = document.getElementById('departureBtn');
 
 const reportBox = document.getElementById('report');
 
-// 현재 시간 (말레이시아) 가져오기
 function getMYTimeString() {
   const now = new Date();
   return now.toLocaleTimeString('ko-KR', {
@@ -21,52 +20,23 @@ function getMYTimeString() {
   });
 }
 
-function getToday() {
-  return new Date();
-}
-
-// 로컬스토리지 저장
-function saveToLocalStorage() {
-  const now = new Date();
+function formatMYDateTime(date, timeStr) {
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const day = weekdays[now.getDay()];
-
-  const data = {
-    name: nameInput.value.trim(),
-    arrival: arrivalInput.value.trim(),
-    departure: departureInput.value.trim(),
-    lastDepartureDate: `${mm}월 ${dd}일`,
-    lastDepartureDay: day,
-    lastDepartureTime: departureInput.value.trim(),
-  };
-
-  localStorage.setItem('commuteData', JSON.stringify(data));
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const day = weekdays[date.getDay()];
+  return `${mm}월 ${dd}일(${day}) ${timeStr}`;
 }
 
-// 로컬스토리지 불러오기
-function loadFromLocalStorage() {
-  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  if (data.name) nameInput.value = data.name;
-  if (data.arrival) arrivalInput.value = data.arrival;
-  if (data.departure) departureInput.value = data.departure;
-}
-
-// Toast 표시
 function showToast(message = '전송 완료') {
   const toastEl = document.getElementById('globalToast');
   const toastMessage = document.getElementById('globalToastMessage');
-
   if (!toastEl || !toastMessage) return;
-
   toastMessage.textContent = message;
-
-  const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
-  toast.show();
+  const bsToast = bootstrap.Toast.getOrCreateInstance(toastEl);
+  bsToast.show();
 }
 
-// Telegram 메시지 전송
 function sendTelegramMessage(message) {
   fetch('/.netlify/functions/sendTelegram', {
     method: 'POST',
@@ -75,7 +45,42 @@ function sendTelegramMessage(message) {
   });
 }
 
-// 보고 미리보기 업데이트
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => showToast('메시지가 복사되었습니다.'));
+}
+
+const saveToLocalStorage = () => {
+  const departure = departureInput.value.trim();
+  const arrival = arrivalInput.value.trim();
+  const now = new Date();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const day = weekdays[now.getDay()];
+
+  const data = {
+    name: nameInput.value.trim(),
+    arrival,
+    departure,
+    lastDepartureDate: `${mm}월 ${dd}일`,
+    lastDepartureDay: day,
+    lastDepartureTime: departure
+  };
+
+  localStorage.setItem('commuteData', JSON.stringify(data));
+};
+
+function loadFromLocalStorage() {
+  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  if (data.name) nameInput.value = data.name;
+  if (data.arrival) arrivalInput.value = data.arrival;
+  if (data.departure) departureInput.value = data.departure;
+}
+
+function getToday() {
+  return new Date();
+}
+
 function updateReportPreview(mode = null) {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const name = nameInput.value || '이름 없음';
@@ -118,24 +123,23 @@ function updateReportPreview(mode = null) {
   reportBox.innerHTML = msg;
 }
 
-// 시간 자동 입력 버튼
 fillArrivalBtn.addEventListener('click', () => {
-  arrivalInput.value = getMYTimeString();
+  const now = getMYTimeString();
+  arrivalInput.value = now;
   saveToLocalStorage();
   updateReportPreview('arrival');
 });
 
 fillDepartureBtn.addEventListener('click', () => {
-  departureInput.value = getMYTimeString();
+  const now = getMYTimeString();
+  departureInput.value = now;
   saveToLocalStorage();
   updateReportPreview('departure');
 });
 
-// 출근 보고 버튼
 arrivalReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
-
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const lastDate = data.lastDepartureDate || '날짜';
   const lastDay = data.lastDepartureDay || '요일';
@@ -154,15 +158,15 @@ arrivalReportBtn.addEventListener('click', () => {
   arrivalInput.value = arrival;
   saveToLocalStorage();
   sendTelegramMessage(msg);
-  showToast('출근 보고 전송 완료');
+  showToast();
   updateReportPreview('arrival');
+  copyToClipboard(msg);
 });
 
-// 퇴근 보고 버튼
 departureReportBtn.addEventListener('click', () => {
   const name = nameInput.value || '이름 없음';
-  const arrival = arrivalInput.value.trim() || '미입력';
   const departure = departureInput.value.trim() || getMYTimeString();
+  const arrival = arrivalInput.value.trim() || '미입력';
 
   const today = getToday();
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -177,11 +181,11 @@ departureReportBtn.addEventListener('click', () => {
   departureInput.value = departure;
   saveToLocalStorage();
   sendTelegramMessage(msg);
-  showToast('퇴근 보고 전송 완료');
+  showToast();
   updateReportPreview('departure');
+  copyToClipboard(msg);
 });
 
-// 입력 시 자동 저장 및 미리보기
 [nameInput, arrivalInput, departureInput].forEach(el => {
   el.addEventListener('input', () => {
     saveToLocalStorage();
@@ -189,6 +193,5 @@ departureReportBtn.addEventListener('click', () => {
   });
 });
 
-// 초기 실행
 loadFromLocalStorage();
 updateReportPreview();
