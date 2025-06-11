@@ -37,14 +37,6 @@ function showToast(message = '전송 완료') {
   bsToast.show();
 }
 
-function sendTelegramMessage(message) {
-  fetch('/.netlify/functions/sendTelegram', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
-  });
-}
-
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => showToast('메시지가 복사되었습니다.'));
 }
@@ -79,6 +71,41 @@ function loadFromLocalStorage() {
 
 function getToday() {
   return new Date();
+}
+
+function generateArrivalReport() {
+  const name = nameInput.value || '이름 없음';
+  const arrival = arrivalInput.value.trim() || getMYTimeString();
+  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  const lastDate = data.lastDepartureDate || '날짜';
+  const lastDay = data.lastDepartureDay || '요일';
+  const lastTime = data.lastDepartureTime || '시간';
+
+  const today = getToday();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayDay = weekdays[today.getDay()];
+
+  return `${name} 출근 보고드립니다.\n` +
+         `-퇴근 ${lastDate}(${lastDay}) ${lastTime}\n` +
+         `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
+}
+
+function generateDepartureReport() {
+  const name = nameInput.value || '이름 없음';
+  const departure = departureInput.value.trim() || getMYTimeString();
+  const arrival = arrivalInput.value.trim() || '미입력';
+
+  const today = getToday();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayDay = weekdays[today.getDay()];
+
+  return `${name} 퇴근 보고드립니다.\n` +
+         `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}\n` +
+         `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
 }
 
 function updateReportPreview(mode = null) {
@@ -123,7 +150,6 @@ function updateReportPreview(mode = null) {
   reportBox.innerHTML = msg;
 }
 
-
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
@@ -139,49 +165,18 @@ fillDepartureBtn.addEventListener('click', () => {
 });
 
 arrivalReportBtn.addEventListener('click', () => {
-  const name = nameInput.value || '이름 없음';
-  const arrival = arrivalInput.value.trim() || getMYTimeString();
-  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  const lastDate = data.lastDepartureDate || '날짜';
-  const lastDay = data.lastDepartureDay || '요일';
-  const lastTime = data.lastDepartureTime || '시간';
-
-  const today = getToday();
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayDay = weekdays[today.getDay()];
-
-  const msg = `${name} 출근 보고드립니다.\n` +
-              `-퇴근 ${lastDate}(${lastDay}) ${lastTime}\n` +
-              `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
-
-  arrivalInput.value = arrival;
+  const msg = generateArrivalReport();
+  arrivalInput.value = arrivalInput.value.trim() || getMYTimeString();
   saveToLocalStorage();
-  sendTelegramMessage(msg);
   showToast();
   updateReportPreview('arrival');
   copyToClipboard(msg);
 });
 
 departureReportBtn.addEventListener('click', () => {
-  const name = nameInput.value || '이름 없음';
-  const departure = departureInput.value.trim() || getMYTimeString();
-  const arrival = arrivalInput.value.trim() || '미입력';
-
-  const today = getToday();
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayDay = weekdays[today.getDay()];
-
-  const msg = `${name} 퇴근 보고드립니다.\n` +
-              `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}\n` +
-              `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
-
-  departureInput.value = departure;
+  const msg = generateDepartureReport();
+  departureInput.value = departureInput.value.trim() || getMYTimeString();
   saveToLocalStorage();
-  sendTelegramMessage(msg);
   showToast();
   updateReportPreview('departure');
   copyToClipboard(msg);
