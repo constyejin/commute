@@ -164,23 +164,46 @@ fillDepartureBtn.addEventListener('click', () => {
   updateReportPreview('departure');
 });
 
+// arrivalReportBtn.addEventListener('click', () => {
+//   const msg = generateArrivalReport();
+//   arrivalInput.value = arrivalInput.value.trim() || getMYTimeString();
+//   saveToLocalStorage();
+//   showToast();
+//   updateReportPreview('arrival');
+//   copyToClipboard(msg);
+// });
+
 arrivalReportBtn.addEventListener('click', () => {
-  const msg = generateArrivalReport();
-  arrivalInput.value = arrivalInput.value.trim() || getMYTimeString();
+  const now = getMYTimeString();
+  arrivalInput.value = now; 
   saveToLocalStorage();
+  const msg = generateArrivalReport();
   showToast();
   updateReportPreview('arrival');
   copyToClipboard(msg);
 });
 
+
+// departureReportBtn.addEventListener('click', () => {
+//   const msg = generateDepartureReport();
+//   departureInput.value = departureInput.value.trim() || getMYTimeString();
+//   saveToLocalStorage();
+//   showToast();
+//   updateReportPreview('departure');
+//   copyToClipboard(msg);
+// });
+
 departureReportBtn.addEventListener('click', () => {
-  const msg = generateDepartureReport();
-  departureInput.value = departureInput.value.trim() || getMYTimeString();
+  const now = getMYTimeString();
+  departureInput.value = now; 
   saveToLocalStorage();
+  const msg = generateDepartureReport();
   showToast();
   updateReportPreview('departure');
   copyToClipboard(msg);
 });
+
+
 
 [nameInput, arrivalInput, departureInput].forEach(el => {
   el.addEventListener('input', () => {
