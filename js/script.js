@@ -123,6 +123,7 @@ function updateReportPreview(mode = null) {
   reportBox.innerHTML = msg;
 }
 
+
 fillArrivalBtn.addEventListener('click', () => {
   const now = getMYTimeString();
   arrivalInput.value = now;
