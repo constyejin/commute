@@ -185,7 +185,6 @@ arrivalReportBtn.addEventListener('click', () => {
 });
 
 
-
 // departureReportBtn.addEventListener('click', () => {
 //   const msg = generateDepartureReport();
 //   departureInput.value = departureInput.value.trim() || getMYTimeString();
@@ -199,7 +198,7 @@ departureReportBtn.addEventListener('click', () => {
   if (!departureInput.value.trim()) {
     departureInput.value = getMYTimeString();
   }
-  saveToLocalStorage();
+  saveToLocalStorage('departure');
   const msg = generateDepartureReport();
   showToast();
   updateReportPreview('departure');
