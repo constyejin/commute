@@ -1,3 +1,4 @@
+// 공통 요소 정의
 const nameInput = document.getElementById('name');
 const arrivalInput = document.getElementById('arrivalTime');
 const departureInput = document.getElementById('departureTime');
@@ -9,7 +10,9 @@ const arrivalReportBtn = document.getElementById('arrivalBtn');
 const departureReportBtn = document.getElementById('departureBtn');
 
 const reportBox = document.getElementById('report');
+const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
 
+// 공통 유틸
 function getMYTimeString() {
   const now = new Date();
   return now.toLocaleTimeString('ko-KR', {
@@ -20,14 +23,14 @@ function getMYTimeString() {
   });
 }
 
-function formatMYDateTime(date, timeStr) {
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+function getDateInfo(date = new Date()) {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const day = weekdays[date.getDay()];
-  return `${mm}월 ${dd}일(${day}) ${timeStr}`;
+  return { mm, dd, day };
 }
 
+// 메시지, 복사, 토스트
 function showToast(message = '전송 완료') {
   const toastEl = document.getElementById('globalToast');
   const toastMessage = document.getElementById('globalToastMessage');
@@ -41,26 +44,26 @@ function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => showToast('메시지가 복사되었습니다.'));
 }
 
-const saveToLocalStorage = () => {
-  const departure = departureInput.value.trim();
+// 로컬 스토리지
+function saveToLocalStorage(mode = null) {
+  const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
+  const name = nameInput.value.trim();
   const arrival = arrivalInput.value.trim();
-  const now = new Date();
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const day = weekdays[now.getDay()];
+  const departure = departureInput.value.trim();
 
-  const data = {
-    name: nameInput.value.trim(),
-    arrival,
-    departure,
-    lastDepartureDate: `${mm}월 ${dd}일`,
-    lastDepartureDay: day,
-    lastDepartureTime: departure
-  };
+  if (mode === 'departure') {
+    const nowInfo = getDateInfo();
+    data.lastDepartureDate = `${nowInfo.mm}월 ${nowInfo.dd}일`;
+    data.lastDepartureDay = nowInfo.day;
+    data.lastDepartureTime = departure;
+  }
+
+  data.name = name;
+  data.arrival = arrival;
+  data.departure = departure;
 
   localStorage.setItem('commuteData', JSON.stringify(data));
-};
+}
 
 function loadFromLocalStorage() {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
@@ -69,79 +72,58 @@ function loadFromLocalStorage() {
   if (data.departure) departureInput.value = data.departure;
 }
 
-function getToday() {
-  return new Date();
-}
-
+// 메시지 생성
 function generateArrivalReport() {
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim() || getMYTimeString();
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
-  const lastDate = data.lastDepartureDate || '날짜';
-  const lastDay = data.lastDepartureDay || '요일';
-  const lastTime = data.lastDepartureTime || '시간';
+  const { lastDepartureDate = '날짜', lastDepartureDay = '요일', lastDepartureTime = '시간' } = data;
 
-  const today = getToday();
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayDay = weekdays[today.getDay()];
-
+  const today = getDateInfo();
   return `${name} 출근 보고드립니다.\n` +
-         `-퇴근 ${lastDate}(${lastDay}) ${lastTime}\n` +
-         `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
+         `-퇴근 ${lastDepartureDate}(${lastDepartureDay}) ${lastDepartureTime}\n` +
+         `-출근 ${today.mm}월 ${today.dd}일(${today.day}) ${arrival}`;
 }
 
 function generateDepartureReport() {
   const name = nameInput.value || '이름 없음';
-  const departure = departureInput.value.trim() || getMYTimeString();
   const arrival = arrivalInput.value.trim() || '미입력';
+  const departure = departureInput.value.trim() || getMYTimeString();
 
-  const today = getToday();
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayDay = weekdays[today.getDay()];
-
+  const today = getDateInfo();
   return `${name} 퇴근 보고드립니다.\n` +
-         `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}\n` +
-         `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
+         `-출근 ${today.mm}월 ${today.dd}일(${today.day}) ${arrival}\n` +
+         `-퇴근 ${today.mm}월 ${today.dd}일(${today.day}) ${departure}`;
 }
 
+// 리포트 박스 업데이트
 function updateReportPreview(mode = null) {
   const data = JSON.parse(localStorage.getItem('commuteData') || '{}');
   const name = nameInput.value || '이름 없음';
   const arrival = arrivalInput.value.trim();
   const departure = departureInput.value.trim();
-  const lastDate = data.lastDepartureDate || '날짜';
-  const lastDay = data.lastDepartureDay || '요일';
-  const lastTime = data.lastDepartureTime || '시간';
+  const { lastDepartureDate = '날짜', lastDepartureDay = '요일', lastDepartureTime = '시간' } = data;
 
-  const today = getToday();
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayDay = weekdays[today.getDay()];
-
+  const today = getDateInfo();
   let msg = '';
 
   if (mode === 'arrival') {
     msg = `${name} 출근 보고드립니다.<br>` +
-          `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
-          `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
+          `-퇴근 ${lastDepartureDate}(${lastDepartureDay}) ${lastDepartureTime}<br>` +
+          `-출근 ${today.mm}월 ${today.dd}일(${today.day}) ${arrival}`;
   } else if (mode === 'departure') {
     msg = `${name} 퇴근 보고드립니다.<br>` +
-          `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}<br>` +
-          `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
+          `-출근 ${today.mm}월 ${today.dd}일(${today.day}) ${arrival}<br>` +
+          `-퇴근 ${today.mm}월 ${today.dd}일(${today.day}) ${departure}`;
   } else {
     if (arrival && !departure) {
       msg = `${name} 출근 보고드립니다.<br>` +
-            `-퇴근 ${lastDate}(${lastDay}) ${lastTime}<br>` +
-            `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}`;
+            `-퇴근 ${lastDepartureDate}(${lastDepartureDay}) ${lastDepartureTime}<br>` +
+            `-출근 ${today.mm}월 ${today.dd}일(${today.day}) ${arrival}`;
     } else if (arrival && departure) {
       msg = `${name} 퇴근 보고드립니다.<br>` +
-            `-출근 ${mm}월 ${dd}일(${todayDay}) ${arrival}<br>` +
-            `-퇴근 ${mm}월 ${dd}일(${todayDay}) ${departure}`;
+            `-출근 ${today.mm}월 ${today.dd}일(${today.day}) ${arrival}<br>` +
+            `-퇴근 ${today.mm}월 ${today.dd}일(${today.day}) ${departure}`;
     } else {
       msg = '입력된 정보가 부족합니다.';
     }
@@ -150,28 +132,18 @@ function updateReportPreview(mode = null) {
   reportBox.innerHTML = msg;
 }
 
+// 버튼 이벤트
 fillArrivalBtn.addEventListener('click', () => {
-  const now = getMYTimeString();
-  arrivalInput.value = now;
+  arrivalInput.value = getMYTimeString();
   saveToLocalStorage();
   updateReportPreview('arrival');
 });
 
 fillDepartureBtn.addEventListener('click', () => {
-  const now = getMYTimeString();
-  departureInput.value = now;
+  departureInput.value = getMYTimeString();
   saveToLocalStorage();
   updateReportPreview('departure');
 });
-
-// arrivalReportBtn.addEventListener('click', () => {
-//   const msg = generateArrivalReport();
-//   arrivalInput.value = arrivalInput.value.trim() || getMYTimeString();
-//   saveToLocalStorage();
-//   showToast();
-//   updateReportPreview('arrival');
-//   copyToClipboard(msg);
-// });
 
 arrivalReportBtn.addEventListener('click', () => {
   if (!arrivalInput.value.trim()) {
@@ -184,16 +156,6 @@ arrivalReportBtn.addEventListener('click', () => {
   copyToClipboard(msg);
 });
 
-
-// departureReportBtn.addEventListener('click', () => {
-//   const msg = generateDepartureReport();
-//   departureInput.value = departureInput.value.trim() || getMYTimeString();
-//   saveToLocalStorage();
-//   showToast();
-//   updateReportPreview('departure');
-//   copyToClipboard(msg);
-// });
-
 departureReportBtn.addEventListener('click', () => {
   if (!departureInput.value.trim()) {
     departureInput.value = getMYTimeString();
@@ -205,8 +167,7 @@ departureReportBtn.addEventListener('click', () => {
   copyToClipboard(msg);
 });
 
-
-
+// 입력값 변경 시 저장 및 미리보기
 [nameInput, arrivalInput, departureInput].forEach(el => {
   el.addEventListener('input', () => {
     saveToLocalStorage();
@@ -214,5 +175,6 @@ departureReportBtn.addEventListener('click', () => {
   });
 });
 
+// 초기화
 loadFromLocalStorage();
 updateReportPreview();
